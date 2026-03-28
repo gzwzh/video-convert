@@ -2,7 +2,7 @@
   "name": "kunqiu-video-converter",
   "private": true,
   "version": "1.0.1",
-  "description": "视频格式助手",
+  "description": "视频转换助手",
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
@@ -10,6 +10,8 @@
     "build": "vite build --mode electron && electron-builder",
     "build:desktop": "vite build --mode electron && electron-builder --config electron-builder.multi-platform.js",
     "build:mac": "vite build --mode electron && electron-builder --mac zip --config electron-builder.multi-platform.js",
+    "build:mac:x64": "vite build --mode electron && electron-builder --mac zip --x64 --config electron-builder.multi-platform.js",
+    "build:mac:arm64": "vite build --mode electron && electron-builder --mac zip --arm64 --config electron-builder.multi-platform.js",
     "build:web": "vite build --mode web && node scripts/generate-seo-files.mjs",
     "build:server": "tsc -p tsconfig.server.json",
     "build:prod": "npm run build:web && npm run build:server",
@@ -63,7 +65,7 @@
   },
   "build": {
     "appId": "com.kunqiu.video-converter",
-    "productName": "视频格式助手",
+    "productName": "视频转换助手",
     "directories": {
       "output": "release_build_v101_portable_new"
     },
@@ -116,7 +118,7 @@
       "installerHeaderIcon": "public/app-icon.ico",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "视频格式助手",
+      "shortcutName": "视频转换助手",
       "artifactName": "${productName} Setup ${version}.${ext}",
       "deleteAppDataOnUninstall": false,
       "runAfterFinish": true,
