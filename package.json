@@ -48,9 +48,7 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
-    "@ffmpeg-installer/linux-x64": "^4.1.0",
     "@ffprobe-installer/ffprobe": "^2.1.2",
-    "@ffprobe-installer/linux-x64": "^5.2.0",
     "axios": "^1.13.6",
     "cors": "^2.8.6",
     "element-plus": "^2.13.0",
