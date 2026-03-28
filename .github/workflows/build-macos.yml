@@ -7,6 +7,7 @@ on:
       - main
       - master
     paths:
+      - ".github/workflows/build-macos.yml"
       - "package.json"
       - "package-lock.json"
       - "electron-builder.multi-platform.js"
