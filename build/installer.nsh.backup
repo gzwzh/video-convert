@@ -1,0 +1,50 @@
+!macro customInstall
+  ; 设置控制面板中的应用图标
+  WriteRegStr SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\${UNINSTALL_APP_KEY}" "DisplayIcon" "$INSTDIR\${APP_EXECUTABLE_FILENAME},0"
+  
+  ; 静默安装时自动创建桌面快捷方式
+  ${IfNot} ${Silent}
+    ; 非静默安装，按正常流程处理
+  ${Else}
+    ; 静默安装时强制创建桌面快捷方式
+    CreateShortCut "$DESKTOP\${PRODUCT_FILENAME}.lnk" "$INSTDIR\${APP_EXECUTABLE_FILENAME}" "" "$INSTDIR\${APP_EXECUTABLE_FILENAME}" 0
+    
+    ; 创建开始菜单快捷方式
+    CreateDirectory "$SMPROGRAMS\${PRODUCT_FILENAME}"
+    CreateShortCut "$SMPROGRAMS\${PRODUCT_FILENAME}\${PRODUCT_FILENAME}.lnk" "$INSTDIR\${APP_EXECUTABLE_FILENAME}" "" "$INSTDIR\${APP_EXECUTABLE_FILENAME}" 0
+    CreateShortCut "$SMPROGRAMS\${PRODUCT_FILENAME}\卸载 ${PRODUCT_FILENAME}.lnk" "$INSTDIR\Uninstall ${PRODUCT_FILENAME}.exe"
+  ${EndIf}
+!macroend
+
+!macro customUnInstall
+  ; 清理桌面快捷方式
+  Delete "$DESKTOP\${PRODUCT_FILENAME}.lnk"
+  
+  ; 清理开始菜单
+  RMDir /r "$SMPROGRAMS\${PRODUCT_FILENAME}"
+  
+  ; 清理注册表
+!macroend
+
+; 支持静默安装的命令行参数
+!macro customInit
+  ; 检查命令行参数
+  ${GetParameters} $R0
+  ${GetOptions} $R0 "/S" $R1
+  ${IfNot} ${Errors}
+    ; 静默安装模式
+    SetSilent silent
+  ${EndIf}
+  
+  ${GetOptions} $R0 "/SILENT" $R1
+  ${IfNot} ${Errors}
+    ; 静默安装模式
+    SetSilent silent
+  ${EndIf}
+  
+  ${GetOptions} $R0 "/VERYSILENT" $R1
+  ${IfNot} ${Errors}
+    ; 完全静默安装模式
+    SetSilent silent
+  ${EndIf}
+!macroend

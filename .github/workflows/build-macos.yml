@@ -1,0 +1,74 @@
+name: Build macOS App
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - "electron-builder.multi-platform.js"
+      - "electron/**"
+      - "src/**"
+      - "build/**"
+      - "public/**"
+      - "vite.config.ts"
+      - "tsconfig.json"
+      - "tsconfig.node.json"
+
+jobs:
+  build-macos:
+    name: macOS ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: macos-13
+          - arch: arm64
+            runner: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate macOS icon
+        shell: bash
+        run: |
+          rm -rf build/icon.iconset build/icon.icns
+          mkdir -p build/icon.iconset
+          sips -z 16 16 build/icon.png --out build/icon.iconset/icon_16x16.png
+          sips -z 32 32 build/icon.png --out build/icon.iconset/icon_16x16@2x.png
+          sips -z 32 32 build/icon.png --out build/icon.iconset/icon_32x32.png
+          sips -z 64 64 build/icon.png --out build/icon.iconset/icon_32x32@2x.png
+          sips -z 128 128 build/icon.png --out build/icon.iconset/icon_128x128.png
+          sips -z 256 256 build/icon.png --out build/icon.iconset/icon_128x128@2x.png
+          sips -z 256 256 build/icon.png --out build/icon.iconset/icon_256x256.png
+          sips -z 512 512 build/icon.png --out build/icon.iconset/icon_256x256@2x.png
+          sips -z 512 512 build/icon.png --out build/icon.iconset/icon_512x512.png
+          cp build/icon.png build/icon.iconset/icon_512x512@2x.png
+          iconutil -c icns build/icon.iconset -o build/icon.icns
+
+      - name: Build macOS package
+        run: npx electron-builder --mac zip --${{ matrix.arch }} --config electron-builder.multi-platform.js
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: video-convert-macos-${{ matrix.arch }}
+          path: release_build_multi_platform/*.zip
+          if-no-files-found: error
