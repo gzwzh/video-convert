@@ -67,6 +67,30 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
 
+      - name: Verify packaged app contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP_PATH=$(find release_build_multi_platform -maxdepth 1 -name "*-mac-${{ matrix.arch }}.zip" | head -n 1)
+          if [ -z "${ZIP_PATH:-}" ]; then
+            echo "No macOS zip artifact found for ${{ matrix.arch }}"
+            exit 1
+          fi
+          VERIFY_DIR="release_build_multi_platform/verify-${{ matrix.arch }}"
+          rm -rf "$VERIFY_DIR"
+          mkdir -p "$VERIFY_DIR"
+          ditto -x -k "$ZIP_PATH" "$VERIFY_DIR"
+          APP_PATH=$(find "$VERIFY_DIR" -maxdepth 2 -name "*.app" | head -n 1)
+          if [ -z "${APP_PATH:-}" ]; then
+            echo "No .app bundle found after unzip"
+            exit 1
+          fi
+          echo "Verified app bundle: $APP_PATH"
+          find "$APP_PATH/Contents/Resources" -maxdepth 4 \( -name "ffmpeg" -o -name "ffprobe" -o -name "main.js" \) -print
+          find "$APP_PATH/Contents/Resources" -maxdepth 6 -name "ffmpeg" | grep -q .
+          find "$APP_PATH/Contents/Resources" -maxdepth 6 -name "ffprobe" | grep -q .
+          test -f "$APP_PATH/Contents/Resources/app.asar"
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
