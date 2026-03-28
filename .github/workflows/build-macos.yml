@@ -63,7 +63,7 @@ jobs:
           iconutil -c icns build/icon.iconset -o build/icon.icns
 
       - name: Build macOS package
-        run: npx electron-builder --mac zip --${{ matrix.arch }} --config electron-builder.multi-platform.js
+        run: npm run build:mac:${{ matrix.arch }}
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
 
